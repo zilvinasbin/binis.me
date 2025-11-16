@@ -1,10 +1,18 @@
-version: '3.8'
+version: "3.8"
 
 services:
   web:
     build: .
+    container_name: binis-me
+    restart: unless-stopped
     ports:
       - "4323:4323"
-    restart: unless-stopped
-    container_name: binis-me
+    environment:
+      - NODE_ENV=production
+    networks:
+      - vps-network
+      - default
 
+networks:
+  vps-network:
+    external: true
