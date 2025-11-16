@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   web:
@@ -7,4 +7,9 @@ services:
       - "4323:4323"
     restart: unless-stopped
     container_name: binis-me
+    networks:
+      - vps-network
 
+networks:
+  vps-network:
+    external: true
