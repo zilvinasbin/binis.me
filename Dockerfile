@@ -1,6 +1,9 @@
 # Build stage
 FROM node:20-alpine AS builder
 
+# Install build dependencies for Sharp
+RUN apk add --no-cache python3 make g++ vips-dev
+
 WORKDIR /app
 
 # Copy package files
@@ -18,6 +21,9 @@ RUN npm run build
 # Production stage
 FROM node:20-alpine AS runner
 
+# Install runtime dependencies for Sharp
+RUN apk add --no-cache vips
+
 WORKDIR /app
 
 # Copy built files and necessary config
@@ -25,9 +31,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/package-lock.json ./
 COPY --from=builder /app/astro.config.mjs ./
-
-# Install only production dependencies for preview server
-RUN npm ci --omit=dev
+COPY --from=builder /app/node_modules ./node_modules
 
 # Expose port 4323
 EXPOSE 4323
