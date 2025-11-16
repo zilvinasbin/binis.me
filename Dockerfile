@@ -7,9 +7,9 @@ RUN apk add --no-cache python3 make g++ vips-dev
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package.json ./
 
-# Install dependencies
+# Install dependencies (without lockfile to get correct platform binaries)
 RUN npm install
 
 # Copy source files
@@ -29,7 +29,6 @@ WORKDIR /app
 # Copy built files and necessary config
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
-COPY --from=builder /app/package-lock.json ./
 COPY --from=builder /app/astro.config.mjs ./
 COPY --from=builder /app/node_modules ./node_modules
 
