@@ -9,7 +9,6 @@ services:
       - "4323:80"
     networks:
       - vps-network
-      - default
 
 networks:
   vps-network:
