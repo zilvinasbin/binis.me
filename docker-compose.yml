@@ -6,9 +6,7 @@ services:
     container_name: binis-me
     restart: unless-stopped
     ports:
-      - "4323:4323"
-    environment:
-      - NODE_ENV=production
+      - "4323:80"
     networks:
       - vps-network
       - default

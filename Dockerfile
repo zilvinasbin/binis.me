@@ -14,22 +14,30 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Production stage
-FROM node:20-alpine AS runner
-
-# Install runtime dependencies
-RUN apk add --no-cache vips
-
-WORKDIR /app
-
-# Install serve for static files (no host checking)
-RUN npm install -g serve
+# Production stage - nginx
+FROM nginx:alpine
 
 # Copy built static files
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose port 4323
-EXPOSE 4323
+# Create custom nginx config
+RUN echo 'server { \n\
+    listen 80; \n\
+    server_name _; \n\
+    root /usr/share/nginx/html; \n\
+    index index.html; \n\
+    \n\
+    location / { \n\
+        try_files $uri $uri/ /index.html; \n\
+    } \n\
+    \n\
+    # Cache static assets \n\
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ { \n\
+        expires 1y; \n\
+        add_header Cache-Control "public, immutable"; \n\
+    } \n\
+}' > /etc/nginx/conf.d/default.conf
 
-# Serve static files on all interfaces
-CMD ["serve", "dist", "-l", "4323", "--no-port-switching", "--no-clipboard"]
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
